@@ -70,20 +70,13 @@ def compare_excel_files(excel_1_folder, excel_2_folder, result_folder, key_colum
     file1 = get_first_file_in_folder(excel_1_folder)
     file2 = get_first_file_in_folder(excel_2_folder)
 
+    # Load workbook và sheet của file Excel_2
     wbResult = load_workbook(file2)
     sheetResult = wbResult.worksheets[0]
-    # Tạo tên file kết quả với thời gian hiện tại
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    result_file = os.path.join(result_folder, f"Result_{timestamp}.xlsx")
-    wbResult.save(result_file)
-
-
-    wbResult2 = load_workbook(result_file)
-    sheetResult2 = wbResult2.worksheets[0]
 
     # Xử lý các ô merge và đọc dữ liệu từ file Excel
-    sheet1, _,_ = unmerge_excel(file1, header_row)  # Không cần workbook và sheet của file1
-    sheet2,_,_ = unmerge_excel(file2, header_row)  # Lấy workbook và sheet của file2 để tô màu
+    sheet1, _,_ = unmerge_excel(file1, header_row)
+    sheet2,_,_ = unmerge_excel(file2, header_row)  
 
     # Bỏ các ô trống (fill NaN thành chuỗi rỗng)
     sheet1.fillna("", inplace=True)
@@ -122,7 +115,7 @@ def compare_excel_files(excel_1_folder, excel_2_folder, result_folder, key_colum
                 if value1 != value2:  # Nếu giá trị không khớp, tô màu hồng
                     row_idx = sheet2.index.get_loc(key) + header_row + 2  # Dòng trong Excel (bắt đầu từ header_row + 2 vì có header)
                     col_idx = sheet2.columns.get_loc(col) + 1  # Cột trong Excel (bắt đầu từ 1 vì không có index)
-                    sheetResult2.cell(row=row_idx, column=col_idx).fill = pink_fill
+                    sheetResult.cell(row=row_idx, column=col_idx).fill = pink_fill
                     print(f"Không khớp tại dòng {row_idx}, cột {col}: {value1} vs {value2}") #In thông tin dòng và cột bị lệch
                     countCellDiff += 1
         else:
@@ -131,12 +124,12 @@ def compare_excel_files(excel_1_folder, excel_2_folder, result_folder, key_colum
             print(f"Không khớp tại dòng {row_idx}") #In thông tin dòng và cột bị lệch
             countRowDiff += 1
             for col_idx in range(1, len(sheet2.columns) + 1):  # Bắt đầu từ cột 1
-                sheetResult2.cell(row=row_idx, column=col_idx).fill = pink_fill
+                sheetResult.cell(row=row_idx, column=col_idx).fill = pink_fill
                 
-
-
-    # Lưu file Excel 2 đã được tô màu vào thư mục result
-    wbResult2.save(result_file)
+    # Tạo tên file kết quả với thời gian hiện tại
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    result_file = os.path.join(result_folder, f"Result_{timestamp}.xlsx")
+    wbResult.save(result_file)
 
     #In số lượng Cell không khớp
     print(f"Số lượng Cell không khớp: {countCellDiff}")

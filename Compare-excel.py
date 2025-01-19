@@ -112,7 +112,13 @@ def compare_excel_files(excel_1_folder, excel_2_folder, result_folder, key_colum
                 value2 = sheet2.at[key, col] if col in sheet2.columns else ""
                 if value2 in valueReplace:
                     value2 = valueReplace[value2]
-                if value1 != value2:  # Nếu giá trị không khớp, tô màu hồng
+
+                 #chuyển thành chuỗi để so sánh nếu NAN chuyển thành rỗng
+                if pd.isnull(value1):
+                    value1 = ""
+                if pd.isnull(value2):
+                    value2 = ""
+                if str(value1) != str(value2):  # Nếu giá trị không khớp, tô màu hồng
                     row_idx = sheet2.index.get_loc(key) + header_row + 2  # Dòng trong Excel (bắt đầu từ header_row + 2 vì có header)
                     col_idx = sheet2.columns.get_loc(col) + 1  # Cột trong Excel (bắt đầu từ 1 vì không có index)
                     sheetResult.cell(row=row_idx, column=col_idx).fill = pink_fill
@@ -150,8 +156,6 @@ if __name__ == "__main__":
 
     # Dòng chứa header (bắt đầu từ 0, ví dụ: nếu header ở dòng 2 thì header_row = 1)
     header_row = 3  # Ví dụ: Header nằm ở dòng 4 trong Excel (dòng đầu tiên là 0)
-
-
 
     # Gọi hàm so sánh
     compare_excel_files(excel_1_folder, excel_2_folder, result_folder, key_columns, header_row)
